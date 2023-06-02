@@ -35,6 +35,11 @@ public class LINQQueriesTests
         // Act
         var result = new List<String>();
 
+        var query = from person in people
+                    where person.Age >= 30 && person.Age <= 40 && person.Hobbies.Contains("Reading")
+                    select person.Name;
+        result = query.ToList();
+
         // Assert
         Assert.AreEqual(1, result.Count());
         Assert.Contains("David", result);
@@ -45,6 +50,11 @@ public class LINQQueriesTests
     {
         // Act
         var result = new List<String>();
+
+        var query = from person in people
+                    where person.Hobbies.Count >= 2
+                    select person.Name;
+        result = query.ToList();
 
         // Assert
         Assert.AreEqual(5, result.Count());
@@ -59,10 +69,10 @@ public class LINQQueriesTests
     public void Query3_CountTotalNumberOfHobbiesAcrossAllPeople_ReturnsCorrectCount()
     {
         // Act
-        var result = new List<String>();
+        var result = new List<string>();
 
         // Assert
-        Assert.AreEqual(10, result);
+        Assert.AreEqual(10, result.Count);
     }
 
     [Test]
@@ -70,6 +80,12 @@ public class LINQQueriesTests
     {
         // Act
         var result = true;
+
+        var query = from person in people
+                    where "aeiouAEIOU".Contains(person.Name)
+                    select person.Name;
+
+        result = query.Any();
 
         // Assert
         Assert.IsFalse(result);
@@ -80,6 +96,10 @@ public class LINQQueriesTests
     {
         // Act
         var result = new List<String>();
+        var query = from person in people
+                    where person.Name.StartsWith("A") && person.Age < 30
+                    select person.Name;
+        result = query.ToList();
 
         // Assert
         Assert.AreEqual(1, result.Count());
@@ -92,6 +112,9 @@ public class LINQQueriesTests
         // Act
         var result = new Person();
 
+        result = people.Aggregate((curMax, person) => (curMax == null || person.Age >
+    curMax.Age ? person : curMax));
+
         // Assert
         Assert.AreEqual("Eve", result.Name);
     }
@@ -102,6 +125,8 @@ public class LINQQueriesTests
         // Act
         var result = true;
 
+
+    
         // Assert
         Assert.IsTrue(result);
     }
@@ -122,6 +147,11 @@ public class LINQQueriesTests
         // Act
         var result = new List<String>();
 
+        var query = from person in people
+                    where person.Name.Length == 5
+                    select person.Name;
+        result = query.ToList();
+
         // Assert
         Assert.AreEqual(2, result.Count());
         Assert.Contains("Alice", result);
@@ -134,6 +164,11 @@ public class LINQQueriesTests
         // Act
         var result = true;
 
+        var query = from person in people
+                    where person.Age > 20
+                    select person;
+        result = query.ToList().Any();
+
         // Assert
         Assert.IsTrue(result);
     }
@@ -144,6 +179,8 @@ public class LINQQueriesTests
     {
         // Act
         var result = new List<String>();
+
+        
 
         // Assert
         Assert.AreEqual(3, result.Count);
@@ -174,6 +211,16 @@ public class LINQQueriesTests
         // Act
         var result = new List<String>();
 
+        var query = from person in people
+                    select person.Hobbies;
+
+        foreach (var person in query)
+        {
+            result.AddRange(person);
+        }
+
+        result = result.OrderBy(h => h).ToList();
+
         // Assert
         Assert.AreEqual(10, result.Count());
         Assert.AreEqual("Cooking", result.First());
@@ -185,6 +232,14 @@ public class LINQQueriesTests
     {
         // Act
         var result = true;
+        var listOfNames = from person in people
+                          select person.Name;
+        IEnumerable<IGrouping<char, char>> query;
+        foreach (var name in listOfNames)
+        {
+            query = name.GroupBy(c => c).Where(g => g.Count() > 1);
+            result = !query.Any();
+        }
 
         // Assert
         Assert.IsFalse(result);
